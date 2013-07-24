@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class BancoMysql {
-
+//teste commit github
 	//private String jdbcUrl = "jdbc:mysql://10.13.4.87:3306/log";
 	private String jdbcUrl = "jdbc:mysql://localhost:3306/log";
 	private String usuario = "log";
