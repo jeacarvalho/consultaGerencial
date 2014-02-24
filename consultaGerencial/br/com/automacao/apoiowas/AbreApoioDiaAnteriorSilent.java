@@ -88,8 +88,53 @@ public class AbreApoioDiaAnteriorSilent {
 		}
 
 		UtilitarioLeituraLogAutomatizado.nucleoProcessamentoLeitura(mesString, anoString, diaString, driver);	
+		limpaBD(mesString, anoString, diaString);
 		
 	}
+	private static void limpaBD(String mesString, String anoString,
+			String diaString) {
+		int dia = Integer.parseInt(diaString);
+		int mes = Integer.parseInt(mesString);
+		int ano = Integer.parseInt(anoString);
+		
+		//montando data de limpeza de log. Por enquanto 5 dias para trás
+		if (dia <= 5){
+			dia = (dia - 5) + 30;
+			if(mes == 1){
+				mes = 12;
+				ano = ano -1;
+			}else{
+				mes = mes-1;
+			}
+		}else{
+			dia = dia - 5;
+		}
+		
+		String anoDeleta, mesDeleta, diaDeleta;
+		
+		if (dia <=9){
+			diaDeleta = "0"+ Integer.toString(dia);
+		}else{
+			diaDeleta = Integer.toString(dia);
+		}
+		
+		if (mes <=9){
+			mesDeleta = "0"+ Integer.toString(mes);
+		}else{
+			mesDeleta = Integer.toString(mes);
+		}
 
+		if (ano <=9){
+			anoDeleta = "200"+ Integer.toString(ano);
+		}else{
+			anoDeleta = "20" + Integer.toString(ano);
+		}
+		
+		UtilitarioLeituraLogAutomatizado.montaDWChamadasPorHora(anoDeleta + mesDeleta + diaDeleta);
+		
+		UtilitarioLeituraLogAutomatizado.montaDWCpfMaisAcessosDia(anoDeleta + mesDeleta + diaDeleta);
+		
+		UtilitarioLeituraLogAutomatizado.limpaBD(anoDeleta + mesDeleta + diaDeleta);
+	}
 	
 }
