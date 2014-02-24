@@ -119,7 +119,60 @@ public class UtilitarioLeituraLogAutomatizado {
 			e.printStackTrace();
 		}
 	}
+	
+	
+	public static void montaDWChamadasPorHora(String ateData){
+		BancoMysql b = new BancoMysql();
+		Connection conn = b.getConn();
+		Statement st;
+		try {
+			st = conn.createStatement();
+			String sql;
+			sql = ("call log.ProcessaDWChamadasSimultaneas (" + ateData + ")") ;
+		    System.out.println("Montando DW com chamadas simultanes data, hora.....");
+		   	st.executeUpdate(sql);
+		   	
+			st.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void montaDWCpfMaisAcessosDia(String ateData){
+		BancoMysql b = new BancoMysql();
+		Connection conn = b.getConn();
+		Statement st;
+		try {
+			st = conn.createStatement();
+			String sql;
+			sql = ("call log.ProcessaDWCPFMaioresAcessos (" + ateData + ")") ;
+		    System.out.println("Montando DW com cpf maiores acessos dia.....");
+		   	st.executeUpdate(sql);
+		   	
+			st.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 
+	public static void limpaBD(String ateData){
+		BancoMysql b = new BancoMysql();
+		
+		
+		Connection conn = b.getConn();
+		Statement st;
+		try {
+			st = conn.createStatement();
+			String sql;
+			sql = ("delete from log.chamada where data <=" + ateData) ;
+		    System.out.println("Processamento erros finalizado. Limpando BD até 5 dias para trás.....");
+		   	st.executeUpdate(sql);
+			st.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static void nucleoProcessamentoLeitura(String mesString,String anoString, String diaString, WebDriver driver) {
 		
 		String dataIdentificaArquivoAlvo = anoString + mesString + diaString;
@@ -151,18 +204,25 @@ public class UtilitarioLeituraLogAutomatizado {
             int i=2;
             while(existeArquivo(i, driver)){
 				String nomeArquivo = driver.findElement(By.xpath("/html/body/div[3]/table/tbody/tr["+ i + "]/td[2]/nobr/a")).getText();
-				if(nomeArquivo.contains(dataIdentificaArquivoAlvo) && nomeArquivo.contains("dia") && !nomeArquivo.contains("control-")){
+				if(nomeArquivo.contains(dataIdentificaArquivoAlvo) && nomeArquivo.contains("dia") && !nomeArquivo.contains("control-") 
+						&& !nomeArquivo.contains("VerboseGC") ){
 					//esse arquivo é de hoje e interessa ser baixado para leitura do log
-					if(existeLink(i-1, driver)){
-						//i-1, pq no apoio o link está com indice diferente do nome do arquivo, apesar de estarem na mesma linha da table...
-						//driver.findElement(By.xpath("(//a[contains(text(),'EBCDIC para UNIX')])[" + (i-1) + "]")).click();
+					if(existeLink(i, driver)){
 						FileDownloader downloadTestFile = new FileDownloader(driver);
 						downloadTestFile.localDownloadPath(CAMINHO_LOG + "/");
-						WebElement downloadLink = driver.findElement(By.xpath("(//a[contains(text(),'EBCDIC para UNIX')])[" + (i-1) + "]"));
-						
-						p = new ProcessaBaixaArquivo(downloadTestFile, downloadLink);
-						p.start();
-						listaThreadBaixa.add(p);
+						try {
+							//20131216 o pessoal do apoio colocou um diretorio na lista de files, que não tem esse link
+							//para baixar o arquivo
+							WebElement downloadLink = driver.findElement(By.xpath("/html/body/div[3]/table/tbody/tr["+ i + "]/td[5]/nobr/a[2]"));
+																					
+							
+							p = new ProcessaBaixaArquivo(downloadTestFile, downloadLink);
+							p.start();
+							listaThreadBaixa.add(p);
+							
+						} catch (Exception e) {
+							// TODO: handle exception
+						}
 					}
 				}  
 				i = i+1;
@@ -214,10 +274,12 @@ public class UtilitarioLeituraLogAutomatizado {
 		
 		UtilitarioLeituraLogAutomatizado.ajustaCodRetorno();
 		
-		UtilitarioLeituraLogAutomatizado.verificaErrosProcessamento();
+		//UtilitarioLeituraLogAutomatizado.verificaErrosProcessamento();
+		
 	
 		System.out.println("Processamento de logs finalizado: " + getDataAtual());
 	}
+
 	
 	public static boolean existeArquivo(int ordem, WebDriver driver){
 		
