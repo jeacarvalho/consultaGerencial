@@ -128,8 +128,8 @@ public class UtilitarioLeituraLogAutomatizado {
 		try {
 			st = conn.createStatement();
 			String sql;
-			sql = ("call log.ProcessaDWChamadasSimultaneas (" + ateData + ")") ;
-		    System.out.println("Montando DW com chamadas simultanes data, hora.....");
+			sql = ("call log.ProcessaDWChamadasSimultaneas ('" + ateData + "')") ;
+		    System.out.println("Montando DW com chamadas simultanes data, hora até: " + ateData);
 		   	st.executeUpdate(sql);
 		   	
 			st.close();
@@ -145,8 +145,8 @@ public class UtilitarioLeituraLogAutomatizado {
 		try {
 			st = conn.createStatement();
 			String sql;
-			sql = ("call log.ProcessaDWCPFMaioresAcessos (" + ateData + ")") ;
-		    System.out.println("Montando DW com cpf maiores acessos dia.....");
+			sql = ("call log.ProcessaDWCPFMaioresAcessos ('" + ateData + "')") ;
+		    System.out.println("Montando DW com cpf maiores acessos dia até: " + ateData + ". Comando executado: " + sql);
 		   	st.executeUpdate(sql);
 		   	
 			st.close();
@@ -165,7 +165,7 @@ public class UtilitarioLeituraLogAutomatizado {
 			st = conn.createStatement();
 			String sql;
 			sql = ("delete from log.chamada where data <=" + ateData) ;
-		    System.out.println("Processamento erros finalizado. Limpando BD até 5 dias para trás.....");
+		    System.out.println("Processamento erros finalizado. Limpando BD até: " + ateData + ". Comando executado: " + sql);
 		   	st.executeUpdate(sql);
 			st.close();
 		} catch (SQLException e) {
